@@ -26,6 +26,7 @@ from glob import glob
 from pathlib import Path
 from typing import Union, Dict, Optional
 
+from bottles.frontend.params import APP_ID
 from bottles.backend.globals import Paths
 from bottles.backend.models.config import BottleConfig
 from bottles.backend.models.result import Result
@@ -521,8 +522,8 @@ class SteamManager:
 
     def add_shortcut(self, program_name: str, program_path: str):
         logging.info(f"Adding shortcut for {program_name}")
-        cmd = "xdg-open"
-        args = "bottles:run/'{0}'/'{1}'"
+        cmd = "flatpak run --command='bottles-cli' {0} run"
+        args = "-b '{0}' -p '{1}'"
 
         if self.userdata_path is None:
             logging.warning("Userdata path is not set")
@@ -531,7 +532,7 @@ class SteamManager:
         confs = glob(os.path.join(self.userdata_path, "*/config/"))
         shortcut = {
             "AppName": program_name,
-            "Exe": cmd,
+            "Exe": cmd.format(APP_ID),
             "StartDir": ManagerUtils.get_bottle_path(self.config),
             "icon": ManagerUtils.extract_icon(self.config, program_name, program_path),
             "ShortcutPath": "",
